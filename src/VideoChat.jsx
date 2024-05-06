@@ -1,9 +1,11 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 function VideoChat() {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerConnection = useRef(null);
+
+  const [stream, setStream] = useState(null);
 
   useEffect(() => {
     const servers = {
@@ -17,20 +19,43 @@ function VideoChat() {
     peerConnection.current.onicecandidate = handleICECandidateEvent;
 
     // Get local media stream
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        localVideoRef.current.srcObject = stream;
-        stream
-          .getTracks()
-          .forEach((track) => peerConnection.current.addTrack(track, stream));
-      })
-      .catch((error) => console.error("Stream error: ", error));
+    const getMedia = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        setStream(mediaStream);
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = mediaStream;
+        }
+      } catch (error) {
+        console.error("미디어 스트림을 가져오는데 실패했습니다.", error);
+      }
+    };
+
+    getMedia();
+    // const mediaStream = await navigator.medi
+
+    // navigator.mediaDevices
+    //   .getUserMedia({ video: true, audio: true })
+    //   .then((stream) => {
+    //     localVideoRef.current.srcObject = stream;
+    //     stream
+    //       .getTracks()
+    //       .forEach((track) => peerConnection.current.addTrack(track, stream));
+    //   })
+    //   .catch((error) => console.error("Stream error: ", error));
 
     return () => {
       if (peerConnection.current) {
         peerConnection.current.close();
+        // localVideoRef.current.srcObject &&
+        //   localVideoRef.current.srcObject
+        //     .getTracks()
+        //     .forEach((track) => track.stop());
       }
+      stream && stream.getTracks().forEach((track) => track.stop());
     };
   }, []);
 
@@ -53,6 +78,13 @@ function VideoChat() {
       });
   };
 
+  const handleStop = () => {
+    if (stream) {
+      const tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+  };
+
   const createAnswer = (offer) => {
     peerConnection.current
       .setRemoteDescription(new RTCSessionDescription(offer))
@@ -68,6 +100,7 @@ function VideoChat() {
         <video ref={localVideoRef} autoPlay playsInline></video>
         <video ref={remoteVideoRef} autoPlay playsInline></video>
         <button onClick={createOffer}>Call</button>
+        <button onClick={handleStop}>Video Stop</button>
       </div>
     </>
   );
