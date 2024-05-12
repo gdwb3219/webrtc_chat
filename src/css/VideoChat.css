@@ -1,12 +1,27 @@
-.myvideo-stream {
-  width: 300px;
-}
-
-.myvideo {
-  width: 300px;
-}
-
 video {
-  width: 300px;
-  height: 400px;
+  /* width: 100%; */
+  /* margin: 10px; */
+  /* padding: 10px; */
+}
+.video-box {
+  display: flex;
+  padding: 30px;
+  gap: 30px;
+  height: 100%;
+  background-color: #f8f9fa;
+}
+
+.inner {
+  flex: 1; /* 각 inner div가 동일한 비율로 공간 차지 */
+  background-color: orange; /* 배경색 설정 */
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.yourvideo {
 }

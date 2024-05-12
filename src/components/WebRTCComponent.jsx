@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import VideoChat from "../components/VideoChat";
+import VideoChat from "./VideoChat";
 import { Link } from "react-router-dom";
+import "../css/WebRTCComponent.css";
+import ButtonBar from "./ButtonBar";
 
 function WebRTCComponent({ stream }) {
   const ws = useRef(null);
@@ -24,6 +26,15 @@ function WebRTCComponent({ stream }) {
     };
   }, []);
 
+  const safeSend = (data) => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(data);
+    } else {
+      console.error("WebSocket is not open.");
+      // 여기서 재연결 로직이나 재시도 로직을 추가할 수도 있습니다.
+    }
+  };
+
   const createOffer = async () => {
     peerConnection.current = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -31,8 +42,14 @@ function WebRTCComponent({ stream }) {
 
     // ICE Candidate 이벤트 핸들러
     peerConnection.current.onicecandidate = (event) => {
+      // if (event.candidate) {
+      //   ws.current.send(
+      //     JSON.stringify({ type: "candidate", candidate: event.candidate })
+      //   );
+      // }
+
       if (event.candidate) {
-        ws.current.send(
+        safeSend(
           JSON.stringify({ type: "candidate", candidate: event.candidate })
         );
       }
@@ -42,7 +59,7 @@ function WebRTCComponent({ stream }) {
 
     const offer = await peerConnection.current.createOffer();
     await peerConnection.current.setLocalDescription(offer);
-    ws.current.send(JSON.stringify({ type: "offer", offer }));
+    safeSend(JSON.stringify({ type: "offer", offer }));
   };
 
   const createAnswer = async (offer) => {
@@ -51,7 +68,7 @@ function WebRTCComponent({ stream }) {
     });
     peerConnection.current.onicecandidate = (event) => {
       if (event.candidate) {
-        ws.current.send(
+        safeSend(
           JSON.stringify({ type: "candidate", candidate: event.candidate })
         );
       }
@@ -62,7 +79,7 @@ function WebRTCComponent({ stream }) {
     );
     const answer = await peerConnection.current.createAnswer();
     await peerConnection.current.setLocalDescription(answer);
-    ws.current.send(JSON.stringify({ type: "answer", answer }));
+    safeSend(JSON.stringify({ type: "answer", answer }));
   };
 
   const handleSignalingData = (data) => {
@@ -106,18 +123,16 @@ function WebRTCComponent({ stream }) {
       <div>WebRTC and Signaling Example</div>
       <div>
         <div>
-          <div className='video-box'>
-            <div className='v-stream me-vdo'>
-              <VideoChat />
-            </div>
-            <div className='v-stream you-vdo'>
-              <VideoChat />
-            </div>
+          <div className='video-container'>
+            <VideoChat />
           </div>
 
           <button onClick={handleStop}>
             <Link to='/'> Home </Link>
           </button>
+        </div>
+        <div className='under-nav'>
+          <ButtonBar />
         </div>
       </div>
     </>

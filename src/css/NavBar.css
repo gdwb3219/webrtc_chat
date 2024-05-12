@@ -1,0 +1,15 @@
+.navigation {
+  height: 100px;
+  background-color: green;
+}
+
+nav ul {
+  list-style: none;
+  padding: 10px;
+  display: flex;
+}
+nav ul li {
+  flex-direction: column;
+  margin-right: 10px;
+  background-color: white;
+}

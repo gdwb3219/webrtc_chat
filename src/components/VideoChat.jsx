@@ -98,25 +98,23 @@ function VideoChat() {
   };
   return (
     <>
-      <div>
-        <div className='myvideo'>
+      <div className='video-box'>
+        <div className='inner myvideo'>
           <video
-            className='myvideo-stream'
+            className='video'
             ref={localVideoRef}
             autoPlay
             playsInline
           ></video>
         </div>
-        <div className='yourvideo'>
+        <div className='inner yourvideo'>
           <video
-            className='yourvideo-stream'
+            className='video'
             ref={remoteVideoRef}
             autoPlay
             playsInline
           ></video>
         </div>
-        <button onClick={createOffer}>Call</button>
-        <button onClick={handleStop}>Video Stop</button>
       </div>
     </>
   );
