@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import './css/VideoPage.css';
+import "../css/VideoPage.css";
+import "../css/VideoChat.css";
 
 function VideoChat() {
   const localVideoRef = useRef(null);
@@ -98,8 +99,22 @@ function VideoChat() {
   return (
     <>
       <div>
-        <div className="myvideo"><video ref={localVideoRef} autoPlay playsInline></video></div>
-        <div className="yourvideo"><video ref={remoteVideoRef} autoPlay playsInline></video></div>
+        <div className='myvideo'>
+          <video
+            className='myvideo-stream'
+            ref={localVideoRef}
+            autoPlay
+            playsInline
+          ></video>
+        </div>
+        <div className='yourvideo'>
+          <video
+            className='yourvideo-stream'
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+          ></video>
+        </div>
         <button onClick={createOffer}>Call</button>
         <button onClick={handleStop}>Video Stop</button>
       </div>

@@ -1,0 +1,7 @@
+.video-box {
+  display: flex;
+}
+
+.v-stream {
+  width: 300px;
+}

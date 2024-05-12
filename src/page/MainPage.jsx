@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import logo from "../logo.svg";
 import "../App.css";
-import VideoChat from "../VideoChat";
 import { Link } from "react-router-dom";
 
 function MainPage() {
@@ -10,22 +8,23 @@ function MainPage() {
     <>
       <div className='App'>
         <header className='App-header'>
-          <img src={logo} className='App-logo' alt='logo' />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className='App-link'
-            href='https://reactjs.org'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            Learn React
-          </a>
-          <br />
-          <button>
-            <Link to='meeting'> 방 입장 </Link>
+          <button className='enter-button'>
+            <Link className='link-style' to='meeting1'>
+              방 1 입장
+            </Link>
           </button>
+
+          <button className='enter-button'>
+            <Link className='link-style' to='meeting2'>
+              방 2 입장
+            </Link>
+          </button>
+
+          <div className='enter-button'>
+            <Link className='link-style' to='meeting2'>
+              방 2 입장
+            </Link>
+          </div>
         </header>
       </div>
     </>
