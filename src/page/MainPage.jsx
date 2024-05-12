@@ -1,9 +1,18 @@
 import React, { useState } from "react";
 import "../App.css";
 import { Link } from "react-router-dom";
+import { io } from "socket.io-client";
 
 function MainPage() {
-  const [stream, setStream] = useState(null);
+  const [message, setMessage] = useState("");
+
+  const socket = io.connect("http://localhost:3001");
+
+  const sendMessage = () => {
+    socket.emit("send'em", { message: message });
+    console.log("Message는 보냈다!");
+  };
+
   return (
     <>
       <div className='App'>
