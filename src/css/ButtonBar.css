@@ -2,4 +2,51 @@
   width: 100%;
   height: 120px;
   background-color: purple;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.status-container {
+  background-color: brown;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.timer {
+  background-color: skyblue;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh {
+  background-color: skyblue;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topic-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 70%;
+  background-color: skyblue;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.topic {
+  background-color: orange;
+  flex: 1 1 calc(33.333% - 20px); /* 각 inner div가 차지할 수 있는 공간을 1/3로 설정하되, 간격을 고려하여 계산 */
+  height: 100%;           /* 높이는 자동으로 조정되도록 설정 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

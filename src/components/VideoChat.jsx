@@ -80,22 +80,22 @@ function VideoChat() {
       });
   };
 
-  const handleStop = () => {
-    if (stream) {
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
-    }
-  };
+  // const handleStop = () => {
+  //   if (stream) {
+  //     const tracks = stream.getTracks();
+  //     tracks.forEach((track) => track.stop());
+  //   }
+  // };
 
-  const createAnswer = (offer) => {
-    peerConnection.current
-      .setRemoteDescription(new RTCSessionDescription(offer))
-      .then(() => peerConnection.current.createAnswer())
-      .then((sdp) => peerConnection.current.setLocalDescription(sdp))
-      .then(() => {
-        // Send the answer to the remote peer
-      });
-  };
+  // const createAnswer = (offer) => {
+  //   peerConnection.current
+  //     .setRemoteDescription(new RTCSessionDescription(offer))
+  //     .then(() => peerConnection.current.createAnswer())
+  //     .then((sdp) => peerConnection.current.setLocalDescription(sdp))
+  //     .then(() => {
+  //       // Send the answer to the remote peer
+  //     });
+  // };
   return (
     <>
       <div className='video-box'>

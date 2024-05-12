@@ -19,6 +19,8 @@ function NavBar() {
             </li>
           </ul>
         </nav>
+        <div className="logo">로고</div>
+        <div className="button">버튼</div>
       </div>
     </>
   );
