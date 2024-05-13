@@ -28,6 +28,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+}
+
+.refresh:hover {
+  background-color: blue;
 }
 
 .topic-container {

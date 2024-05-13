@@ -120,16 +120,12 @@ function WebRTCComponent({ stream }) {
 
   return (
     <>
-      <div>WebRTC and Signaling Example</div>
       <div>
         <div>
           <div className='video-container'>
             <VideoChat />
           </div>
 
-          <button onClick={handleStop}>
-            <Link to='/'> Home </Link>
-          </button>
         </div>
         <div className='under-nav'>
           <ButtonBar />
