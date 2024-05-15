@@ -15,9 +15,22 @@ function WebRTCComponent({ stream }) {
     };
 
     // message 받은 걸 JSON 객체로 변환
-    ws.current.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-      handleSignalingData(data);
+    ws.current.onmessage = async (message) => {
+      let data;
+      if (message.data instanceof Blob) {
+        data = await message.data.text();
+        console.log("Blob이다", data)
+      } else {
+        data = message.data;
+        console.log("Blob 아니다.", data)
+      }
+      try {
+        const jsonData = JSON.parse(data);
+        console.log("Data 받았다.", jsonData)
+        handleSignalingData(jsonData);
+      } catch (e) {
+        console.error('Error parsing JSON:', e);
+      }
     };
 
     // 연결 종료
@@ -30,7 +43,9 @@ function WebRTCComponent({ stream }) {
     };
   }, []);
 
+  // safe Send 함수로 상대방에게 Data를 전달
   const safeSend = (data) => {
+    // 나한테는 보내지 않음 && 상대방이 Open인 경우만 보냄
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(data);
     } else {
@@ -41,16 +56,27 @@ function WebRTCComponent({ stream }) {
 
   const createOffer = async () => {
     peerConnection.current = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
     });
+
+    peerConnection.current.onicecandidate = (event) => {
+      if (event.candidate) {
+        console.log("Sending ICE candidate:", event.candidate);
+        safeSend({ type: "candidate", candidate: event.candidate });
+      }
+    };
+
+
+    // ICE 연결 상태 변경 이벤트 핸들러
+    peerConnection.current.oniceconnectionstatechange = () => {
+      console.log("ICE Connection State Change: ", peerConnection.current.iceConnectionState);
+      if (peerConnection.current.iceConnectionState === 'connected' || peerConnection.current.iceConnectionState === 'completed') {
+        console.log("WebRTC connection established");
+      }
+    };
 
     // ICE Candidate 이벤트 핸들러
     peerConnection.current.onicecandidate = (event) => {
-      // if (event.candidate) {
-      //   ws.current.send(
-      //     JSON.stringify({ type: "candidate", candidate: event.candidate })
-      //   );
-      // }
 
       if (event.candidate) {
         safeSend(
@@ -68,10 +94,11 @@ function WebRTCComponent({ stream }) {
 
   const createAnswer = async (offer) => {
     peerConnection.current = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
     });
     peerConnection.current.onicecandidate = (event) => {
       if (event.candidate) {
+        
         safeSend(
           JSON.stringify({ type: "candidate", candidate: event.candidate })
         );
