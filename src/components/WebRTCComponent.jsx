@@ -13,10 +13,14 @@ function WebRTCComponent({ stream }) {
     ws.current.onopen = () => {
       console.log("Connected to the signaling server");
     };
+
+    // message 받은 걸 JSON 객체로 변환
     ws.current.onmessage = (message) => {
       const data = JSON.parse(message.data);
       handleSignalingData(data);
     };
+
+    // 연결 종료
     ws.current.onclose = () =>
       console.log("Disconnected from the signaling server");
 
@@ -125,7 +129,6 @@ function WebRTCComponent({ stream }) {
           <div className='video-container'>
             <VideoChat />
           </div>
-
         </div>
         <div className='under-nav'>
           <ButtonBar />

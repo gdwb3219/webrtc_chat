@@ -2,6 +2,7 @@ video {
   /* width: 100%; */
   /* margin: 10px; */
   /* padding: 10px; */
+  transform: scaleX(-1);
 }
 .video-box {
   display: flex;
