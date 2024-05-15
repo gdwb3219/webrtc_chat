@@ -3,6 +3,7 @@ import MainPage from "./page/MainPage";
 import MeetingPage from "./page/MeetingPage";
 import WebRTCComponent from "./components/WebRTCComponent";
 import NavBar from "./components/NavBar";
+import WebRTCComponent2 from "./components/WebRTCComponent2";
 
 function App() {
   return (
@@ -10,8 +11,8 @@ function App() {
       <NavBar />
       <Routes>
         <Route path='/' element={<MainPage />} />
-        <Route path='/meeting1' element={<MeetingPage />} />
         <Route path='/meeting2' element={<WebRTCComponent />} />
+        <Route path='/meeting1' element={<WebRTCComponent2 />} />
       </Routes>
     </BrowserRouter>
   );
