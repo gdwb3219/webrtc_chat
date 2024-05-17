@@ -8,8 +8,9 @@ function WebRTCComponent({ stream }) {
   const ws = useRef(null);
   const peerConnection = useRef(null);
 
+  // Web Socket 연결 useEffect
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8080"); // 시그널링 서버 URL
+    ws.current = new WebSocket("ws://192.168.237.146:8080"); // 시그널링 서버 URL
     ws.current.onopen = () => {
       console.log("Connected to the signaling server");
     };
@@ -19,17 +20,17 @@ function WebRTCComponent({ stream }) {
       let data;
       if (message.data instanceof Blob) {
         data = await message.data.text();
-        console.log("Blob이다", data)
+        console.log("Blob이다", data);
       } else {
         data = message.data;
-        console.log("Blob 아니다.", data)
+        console.log("Blob 아니다.", data);
       }
       try {
         const jsonData = JSON.parse(data);
-        console.log("Data 받았다.", jsonData)
+        console.log("Data 받았다.", jsonData);
         handleSignalingData(jsonData);
       } catch (e) {
-        console.error('Error parsing JSON:', e);
+        console.error("Error parsing JSON:", e);
       }
     };
 
@@ -43,6 +44,37 @@ function WebRTCComponent({ stream }) {
     };
   }, []);
 
+  const createPeerConnection = () => {
+    console.log("와드2");
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
+    });
+    console.log(pc.onicecandidate, "와드3");
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        console.log("Found ICE candidate:", event.candidate);
+        safeSend(
+          JSON.stringify({ type: "candidate", candidate: event.candidate })
+        );
+      } else {
+        console.log("End of candidates.");
+      }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log("ICE Connection State Change: ", pc.iceConnectionState);
+      if (
+        pc.iceConnectionState === "connected" ||
+        pc.iceConnectionState === "completed"
+      ) {
+        console.log("WebRTC connection established");
+      }
+    };
+
+    return pc;
+  };
+
   // safe Send 함수로 상대방에게 Data를 전달
   const safeSend = (data) => {
     // 나한테는 보내지 않음 && 상대방이 Open인 경우만 보냄
@@ -55,37 +87,8 @@ function WebRTCComponent({ stream }) {
   };
 
   const createOffer = async () => {
-    peerConnection.current = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
-    });
-
-    peerConnection.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        console.log("Sending ICE candidate:", event.candidate);
-        safeSend({ type: "candidate", candidate: event.candidate });
-      }
-    };
-
-
-    // ICE 연결 상태 변경 이벤트 핸들러
-    peerConnection.current.oniceconnectionstatechange = () => {
-      console.log("ICE Connection State Change: ", peerConnection.current.iceConnectionState);
-      if (peerConnection.current.iceConnectionState === 'connected' || peerConnection.current.iceConnectionState === 'completed') {
-        console.log("WebRTC connection established");
-      }
-    };
-
-    // ICE Candidate 이벤트 핸들러
-    peerConnection.current.onicecandidate = (event) => {
-
-      if (event.candidate) {
-        safeSend(
-          JSON.stringify({ type: "candidate", candidate: event.candidate })
-        );
-      }
-    };
-
-    // 미디어 트랙 설정, 여기서는 getUserMedia 등을 사용하여 로컬 미디어를 설정할 수 있음
+    console.log("와드1");
+    peerConnection.current = createPeerConnection();
 
     const offer = await peerConnection.current.createOffer();
     await peerConnection.current.setLocalDescription(offer);
@@ -93,17 +96,7 @@ function WebRTCComponent({ stream }) {
   };
 
   const createAnswer = async (offer) => {
-    peerConnection.current = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
-    });
-    peerConnection.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        
-        safeSend(
-          JSON.stringify({ type: "candidate", candidate: event.candidate })
-        );
-      }
-    };
+    peerConnection.current = createPeerConnection();
 
     await peerConnection.current.setRemoteDescription(
       new RTCSessionDescription(offer)
@@ -116,14 +109,17 @@ function WebRTCComponent({ stream }) {
   const handleSignalingData = (data) => {
     switch (data.type) {
       case "offer":
+        console.log("offer 받았다.");
         createAnswer(data.offer);
         break;
       case "answer":
+        console.log("answer 받았다.");
         peerConnection.current.setRemoteDescription(
           new RTCSessionDescription(data.answer)
         );
         break;
       case "candidate":
+        console.log("Candidate 받았다.");
         peerConnection.current.addIceCandidate(
           new RTCIceCandidate(data.candidate)
         );
@@ -134,7 +130,9 @@ function WebRTCComponent({ stream }) {
   };
 
   useEffect(() => {
+    console.log("UseEffect 실행!");
     createOffer(); // Offer 생성 로직을 자동으로 실행하려면 여기에 추가
+    console.log("createOffer");
     return () => {
       if (peerConnection.current) {
         peerConnection.current.close();
