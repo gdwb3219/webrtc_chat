@@ -10,7 +10,7 @@ function WebRTCComponent({ stream }) {
 
   // Web Socket 연결 useEffect
   useEffect(() => {
-    ws.current = new WebSocket("ws://192.168.237.146:8080"); // 시그널링 서버 URL
+    ws.current = new WebSocket("ws://localhost:8080"); // 시그널링 서버 URL
     ws.current.onopen = () => {
       console.log("Connected to the signaling server");
     };
@@ -49,11 +49,10 @@ function WebRTCComponent({ stream }) {
     const pc = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
     });
-    console.log(pc.onicecandidate, "와드3");
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        console.log("Found ICE candidate:", event.candidate);
+        console.log("Found ICE candidate!!!:", event.candidate);
         safeSend(
           JSON.stringify({ type: "candidate", candidate: event.candidate })
         );
@@ -61,6 +60,8 @@ function WebRTCComponent({ stream }) {
         console.log("End of candidates.");
       }
     };
+
+    console.log(pc.onicecandidate, "와드3");
 
     pc.oniceconnectionstatechange = () => {
       console.log("ICE Connection State Change: ", pc.iceConnectionState);
@@ -132,7 +133,7 @@ function WebRTCComponent({ stream }) {
   useEffect(() => {
     console.log("UseEffect 실행!");
     createOffer(); // Offer 생성 로직을 자동으로 실행하려면 여기에 추가
-    console.log("createOffer");
+    console.log("createOffer 실행!");
     return () => {
       if (peerConnection.current) {
         peerConnection.current.close();
