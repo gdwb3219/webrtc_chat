@@ -125,7 +125,7 @@ function WebRTCComponent({ stream }) {
   };
 
   const createAnswer = async (offer) => {
-    console.log("와드4 : createOffer 함수 실행");
+    console.log("와드4 : createAnswer 함수 실행");
 
     peerConnection.current = createPeerConnection();
 
