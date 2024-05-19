@@ -45,10 +45,12 @@ function WebRTCComponent({ stream }) {
   }, []);
 
   const createPeerConnection = () => {
-    console.log("와드2");
+    console.log("와드2 : createPeerConnection 함수 실행");
     const pc = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
     });
+
+    console.log("RTCPeerConnection created, setting up ICE candidate handler");
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
@@ -61,8 +63,6 @@ function WebRTCComponent({ stream }) {
       }
     };
 
-    console.log(pc.onicecandidate, "와드3");
-
     pc.oniceconnectionstatechange = () => {
       console.log("ICE Connection State Change: ", pc.iceConnectionState);
       if (
@@ -73,6 +73,13 @@ function WebRTCComponent({ stream }) {
       }
     };
 
+    pc.onicegatheringstatechange = () => {
+      console.log("ICE Gathering State Change: ", pc.iceGatheringState);
+    };
+
+    console.log("RTCPeerConnection setup complete");
+
+    console.log("와드2 종료");
     return pc;
   };
 
@@ -80,6 +87,7 @@ function WebRTCComponent({ stream }) {
   const safeSend = (data) => {
     // 나한테는 보내지 않음 && 상대방이 Open인 경우만 보냄
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      console.log("Data를 서버로 보냈다.SafeSend함수 실행", data);
       ws.current.send(data);
     } else {
       console.error("WebSocket is not open.");
@@ -88,15 +96,37 @@ function WebRTCComponent({ stream }) {
   };
 
   const createOffer = async () => {
-    console.log("와드1");
+    console.log("와드1 : createOffer 함수 실행");
     peerConnection.current = createPeerConnection();
 
     const offer = await peerConnection.current.createOffer();
+    console.log("와드1-1 : offer 생성", offer);
     await peerConnection.current.setLocalDescription(offer);
+    console.log("와드1-2 : local설명 설정");
+    console.log(
+      "Local description set:",
+      peerConnection.current.localDescription
+    );
+
+    // 주기적으로 ICE 수집 상태를 확인하여 로그 출력
+    const checkIceGatheringState = setInterval(() => {
+      if (peerConnection.current) {
+        console.log(
+          "ICE Gathering State (interval):",
+          peerConnection.current.iceGatheringState
+        );
+        if (peerConnection.current.iceGatheringState === "complete") {
+          clearInterval(checkIceGatheringState);
+        }
+      }
+    }, 1000);
     safeSend(JSON.stringify({ type: "offer", offer }));
+    console.log("와드1 종료");
   };
 
   const createAnswer = async (offer) => {
+    console.log("와드4 : createOffer 함수 실행");
+
     peerConnection.current = createPeerConnection();
 
     await peerConnection.current.setRemoteDescription(
@@ -105,6 +135,23 @@ function WebRTCComponent({ stream }) {
     const answer = await peerConnection.current.createAnswer();
     await peerConnection.current.setLocalDescription(answer);
     safeSend(JSON.stringify({ type: "answer", answer }));
+    console.log("와드4 종료");
+  };
+
+  const checkPeerConnectionState = () => {
+    if (peerConnection.current) {
+      console.log(
+        "ICE Gathering State:",
+        peerConnection.current.iceGatheringState
+      );
+      console.log(
+        "ICE Connection State:",
+        peerConnection.current.iceConnectionState
+      );
+      console.log("Signaling State:", peerConnection.current.signalingState);
+    } else {
+      console.log("PeerConnection is not initialized.");
+    }
   };
 
   const handleSignalingData = (data) => {
@@ -133,7 +180,9 @@ function WebRTCComponent({ stream }) {
   useEffect(() => {
     console.log("UseEffect 실행!");
     createOffer(); // Offer 생성 로직을 자동으로 실행하려면 여기에 추가
-    console.log("createOffer 실행!");
+    console.log("createOffer 종료!");
+    checkPeerConnectionState();
+    console.log("ICE 데이터 확인");
     return () => {
       if (peerConnection.current) {
         peerConnection.current.close();
