@@ -7,6 +7,7 @@ import ButtonBar from "./ButtonBar";
 function WebRTCComponent({ stream }) {
   const ws = useRef(null);
   const peerConnection = useRef(null);
+  const dataChannel = useRef(null); // Data Channel 레퍼런스 추가
 
   // Web Socket 연결 useEffect
   useEffect(() => {
@@ -77,6 +78,18 @@ function WebRTCComponent({ stream }) {
       console.log("ICE Gathering State Change: ", pc.iceGatheringState);
     };
 
+    // Data Channel 생성 및 이벤트 핸들러 설정
+    dataChannel.current = pc.createDataChannel("chat");
+    dataChannel.current.onopen = () => {
+      console.log("DataChannel is open");
+    };
+    dataChannel.current.onmessage = (event) => {
+      console.log("DataChannel message received:", event.data);
+    };
+    dataChannel.current.onclose = () => {
+      console.log("DataChannel is closed");
+    };
+
     console.log("RTCPeerConnection setup complete");
 
     console.log("와드2 종료");
@@ -134,6 +147,7 @@ function WebRTCComponent({ stream }) {
     );
     const answer = await peerConnection.current.createAnswer();
     await peerConnection.current.setLocalDescription(answer);
+    console.log("SetLocalDescription");
     safeSend(JSON.stringify({ type: "answer", answer }));
     console.log("와드4 종료");
   };
