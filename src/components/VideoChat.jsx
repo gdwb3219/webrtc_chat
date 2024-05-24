@@ -62,6 +62,7 @@ function VideoChat() {
   }, []);
 
   const handleTrackEvent = (event) => {
+    console.log("remote Video 연결?")
     remoteVideoRef.current.srcObject = event.streams[0];
   };
 

@@ -1,9 +1,4 @@
-video {
-  /* width: 100%; */
-  /* margin: 10px; */
-  /* padding: 10px; */
-  transform: scaleX(-1);
-}
+
 .video-box {
   display: flex;
   padding: 30px;
@@ -24,5 +19,10 @@ video {
   max-height: 100%;
 }
 
-.myvideo {
+.inner.myvideo {
+  transform: scaleX(-1);
+}
+
+.inner.yourvideo {
+  
 }

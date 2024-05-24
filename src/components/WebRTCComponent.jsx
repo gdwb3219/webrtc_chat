@@ -7,7 +7,11 @@ import ButtonBar from "./ButtonBar";
 function WebRTCComponent({ stream }) {
   const ws = useRef(null);
   const peerConnection = useRef(null);
-  const dataChannel = useRef(null); // Data Channel 레퍼런스 추가
+  // const dataChannel = useRef(null); // Data Channel 레퍼런스 추가
+
+  // VidoeRef를 여기에서 처리해보자
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
 
   // Web Socket 연결 useEffect
   useEffect(() => {
@@ -21,7 +25,6 @@ function WebRTCComponent({ stream }) {
       let data;
       if (message.data instanceof Blob) {
         data = await message.data.text();
-        console.log("Blob이다", data);
       } else {
         data = message.data;
         console.log("Blob 아니다.", data);
@@ -71,6 +74,8 @@ function WebRTCComponent({ stream }) {
         pc.iceConnectionState === "completed"
       ) {
         console.log("WebRTC connection established");
+      } else if (pc.iceConnectionState === "disconnected") {
+        console.log("ICE Connection State is disconnected. Attempting to reconnect...")
       }
     };
 
@@ -79,14 +84,15 @@ function WebRTCComponent({ stream }) {
     };
 
     // Data Channel 생성 및 이벤트 핸들러 설정
-    dataChannel.current = pc.createDataChannel("chat");
-    dataChannel.current.onopen = () => {
+    // dataChannel.current = pc.createDataChannel("chat");
+    const dataChannel = pc.createDataChannel("chat");
+    dataChannel.onopen = () => {
       console.log("DataChannel is open");
     };
-    dataChannel.current.onmessage = (event) => {
+    dataChannel.onmessage = (event) => {
       console.log("DataChannel message received:", event.data);
     };
-    dataChannel.current.onclose = () => {
+    dataChannel.onclose = () => {
       console.log("DataChannel is closed");
     };
 
@@ -100,7 +106,6 @@ function WebRTCComponent({ stream }) {
   const safeSend = (data) => {
     // 나한테는 보내지 않음 && 상대방이 Open인 경우만 보냄
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      console.log("Data를 서버로 보냈다.SafeSend함수 실행", data);
       ws.current.send(data);
     } else {
       console.error("WebSocket is not open.");
